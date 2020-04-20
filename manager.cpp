@@ -18,14 +18,13 @@ void Manager::ReadRequestFromStream(std::istream& in_stream, Request::Mode mode)
     {
         std::string str_request;
         std::getline(in_stream, str_request);
-        auto type_request = Parser::ParseRequest(str_request, mode);
+        const auto type_request = Parser::ParseRequest(str_request, mode);
         if (!type_request)
         {
             return;
         }
 
-        auto request = Request::Create(type_request);
-//        queue_requests;
+
     }
 
 }

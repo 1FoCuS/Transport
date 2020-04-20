@@ -8,6 +8,7 @@
 #include <string_view>
 #include <optional>
 #include "response.h"
+#include "parser.h"
 
 struct Request;
 using RequestPtr = std::unique_ptr<Request>;
@@ -51,7 +52,7 @@ template <typename ResultType>
 struct ReadRequest: Request
 {
     using Request::Request;
-    virtual ResultType Process() = 0;
+    virtual ResultType Process() const = 0;
 };
 
 //***************************** 3-level class **********************************
@@ -75,6 +76,9 @@ struct AddBusLineRoute : ModifyRequest
     AddBusLineRoute() : ModifyRequest(TypeRequest::ADD_BUS_LINE) {}
     void Parse(std::string_view input) override final;
     void Process() const override final;
+private:
+    std::string id;
+    std::vector<std::string> stops;
 };
 
 struct AddBusRingRoute : ModifyRequest
@@ -82,22 +86,31 @@ struct AddBusRingRoute : ModifyRequest
     AddBusRingRoute() : ModifyRequest(TypeRequest::ADD_BUS_RING) {}
     void Parse(std::string_view input) override final;
     void Process() const override final;
+private:
+    std::string id;
+    std::vector<std::string> stops;
 };
 
 
 // ************************* 3-level read-request ****************************
 
-template <typename ResultType>
 struct GetBusInfo : ReadRequest<BusInfoResponse>
 {
     GetBusInfo() : ReadRequest(TypeRequest::GET_INFO_BUS) {}
     virtual void Parse(std::string_view) override final;
-    virtual BusInfoResponse Process() override final;
+    virtual BusInfoResponse Process() const override final;
+private:
+    std::string bus_id;
 };
 
 // ************************* function for work with request ******************
 
 std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view, Request::Mode);
+
+template <typename Number>
+static Number ReadNumber(std::istream&);
+
+static RequestPtr ParseRequest(std::string_view, Request::Mode);
 
 
 #endif // REQUEST_H

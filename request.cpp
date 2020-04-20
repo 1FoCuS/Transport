@@ -49,3 +49,86 @@ RequestPtr Request::Create(Request::TypeRequest type)
             return nullptr;
     }
 }
+//************************************* Parse-methods ******************************************************
+void AddStopRequest::Parse(std::string_view input)
+{
+    name = Parser::ReadToken(input, ": ");
+    x = Parser::ConvertToDouble(Parser::ReadToken(input, ", "));
+    y = Parser::ConvertToDouble(input);
+}
+void AddStopRequest::Process() const
+{
+    // add to database stop -> name,x,y
+}
+
+
+void AddBusLineRoute::Parse(std::string_view str_names)
+{
+    id = Parser::ReadToken(str_names, ": ");
+    stops.push_back(std::string(Parser::ReadToken(str_names, " - ")));
+    while (!str_names.empty())
+    {
+        stops.push_back(std::string(Parser::ReadToken(str_names, " - ")));
+    }
+}
+
+void AddBusLineRoute::Process() const
+{
+    // add to database route and bus
+}
+
+void AddBusRingRoute::Parse(std::string_view str_names)
+{
+    id = Parser::ReadToken(str_names, ": ");
+    stops.push_back(std::string(Parser::ReadToken(str_names, " > ")));
+    while (!str_names.empty())
+    {
+        stops.push_back(std::string(Parser::ReadToken(str_names, " > ")));
+    }
+}
+void AddBusRingRoute::Process() const
+{
+    // add to database route and bus
+}
+
+void GetBusInfo::Parse(std::string_view input)
+{
+    bus_id = input;
+}
+
+BusInfoResponse GetBusInfo::Process() const
+{
+
+}
+
+//******************************* function for work with request*********************************************
+// @todo optimisation read number
+template <typename Number>
+Number ReadNumber(std::istream& in_stream)
+{
+    assert(std::is_arithmetic<Number>::value);
+
+    Number number;
+    in_stream >> number;
+    std::string value;
+    std::getline(in_stream, value);
+
+    return number;
+}
+
+RequestPtr ParseRequest(std::string_view str_request, Request::Mode mode)
+{
+    const auto type_request = CheckTypeRequest(str_request, mode);
+    if (!type_request)
+    {
+        return nullptr;
+    }
+    auto request_ptr = Request::Create(type_request.value());
+    if (request_ptr)
+    {
+        Parser::ReadToken(str_request);
+        request_ptr->Parse(str_request);
+    }
+
+    return request_ptr;
+}
