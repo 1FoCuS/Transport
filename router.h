@@ -16,10 +16,6 @@ public:
         static Router router;
         return router;
     }
-
-    void add_route(int number_route, Data_route data_route);
-
-    const Data_route& get_route(int number_route) const;
 private:
     Router();
 };
