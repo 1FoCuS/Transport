@@ -1,41 +1,103 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-enum Type
+#include <iostream>
+#include <vector>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <optional>
+#include "response.h"
+
+struct Request;
+using RequestPtr = std::unique_ptr<Request>;
+
+
+//***************************** 1-level class **********************************
+struct Request
 {
-    ADD_STOP,
-    ADD_BUS_LINE,
-    ADD_BUS_RING,
-    GET_INFO_BUS
+    enum class TypeRequest
+    {
+        ADD_STOP,
+        ADD_BUS_LINE,
+        ADD_BUS_RING,
+        GET_INFO_BUS
+    };
+
+    enum class Mode
+    {
+        READ_ONLY,
+        WRITE
+    };
+
+    Request(TypeRequest type) : type(type) {}
+    static RequestPtr Create(TypeRequest);
+    virtual void Parse(std::string_view) = 0;
+    virtual ~Request() = default;
+
+    const TypeRequest type;
 };
 
-enum Mode
+//***************************** 2-level class **********************************
+
+struct ModifyRequest : Request
 {
-    READ,
-    MODIFY
+    using Request::Request;
+    virtual void Process() const = 0;
 };
 
-class Request
+
+template <typename ResultType>
+struct ReadRequest: Request
 {
-public:
-    Request(Type type) : type(type) {}
-    virtual void Parse() = 0;
-    virtual ~Request();
+    using Request::Request;
+    virtual ResultType Process() = 0;
+};
+
+//***************************** 3-level class **********************************
+
+
+// ************************* 3-level write-request ******************************
+struct AddStopRequest : ModifyRequest
+{
+    AddStopRequest() : ModifyRequest(TypeRequest::ADD_STOP) {}
+    void Parse(std::string_view input) override final;
+    void Process() const override final;
+
 private:
-    const Type type;
+    std::string name;
+    double x;
+    double y;
 };
 
-class ModRequest: public Request
+struct AddBusLineRoute : ModifyRequest
 {
-    virtual void Process() = 0;
+    AddBusLineRoute() : ModifyRequest(TypeRequest::ADD_BUS_LINE) {}
+    void Parse(std::string_view input) override final;
+    void Process() const override final;
 };
 
-// добавить запрос на добавление остановки
-// добавить запрос на добавление маршрута - 2 вида
-
-class ReadRequest: public Request
+struct AddBusRingRoute : ModifyRequest
 {
-    virtual void Process() = 0;
+    AddBusRingRoute() : ModifyRequest(TypeRequest::ADD_BUS_RING) {}
+    void Parse(std::string_view input) override final;
+    void Process() const override final;
 };
+
+
+// ************************* 3-level read-request ****************************
+
+template <typename ResultType>
+struct GetBusInfo : ReadRequest<BusInfoResponse>
+{
+    GetBusInfo() : ReadRequest(TypeRequest::GET_INFO_BUS) {}
+    virtual void Parse(std::string_view) override final;
+    virtual BusInfoResponse Process() override final;
+};
+
+// ************************* function for work with request ******************
+
+std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view, Request::Mode);
+
 
 #endif // REQUEST_H
