@@ -8,6 +8,7 @@ Manager::Manager()
 void Manager::run(std::istream& in_stream, std::ostream& output)
 {
     ReadRequestFromStream(in_stream, Request::Mode::WRITE);
+
     RunRequests();
     ReadRequestFromStream(in_stream, Request::Mode::READ_ONLY);
     const auto responses = GetRequests();
@@ -27,7 +28,7 @@ void Manager::ReadRequestFromStream(std::istream& in_stream, Request::Mode mode)
         {
             return;
         }
-        queue_requests.push_back(request);
+        queue_requests.push_back(std::move(request));
     }
 }
 
@@ -52,3 +53,4 @@ std::vector<BusInfoResponse> Manager::GetRequests()
     }
     return responses;
 }
+

@@ -1,6 +1,5 @@
 #include "request.h"
 
-
 std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view str, Request::Mode mode)
 {
 
@@ -102,18 +101,6 @@ BusInfoResponse GetBusInfo::Process() const
 }
 
 //******************************* function for work with request*********************************************
-// @todo optimisation read number
-template <typename Number>
-Number ReadNumber(std::istream& in_stream)
-{
-    assert(std::is_arithmetic<Number>::value);
 
-    Number number;
-    in_stream >> number;
-    std::string value;
-    std::getline(in_stream, value);
-
-    return number;
-}
 
 

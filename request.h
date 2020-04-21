@@ -7,6 +7,8 @@
 #include <string>
 #include <string_view>
 #include <optional>
+#include <cassert>
+
 #include "response.h"
 #include "parser.h"
 #include "database.h"
@@ -113,10 +115,21 @@ private:
 
 std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view, Request::Mode);
 
+// @todo optimisation read number
 template <typename Number>
-Number ReadNumber(std::istream&);
+inline  Number ReadNumber(std::istream& in_stream)
+{
+    assert(std::is_arithmetic<Number>::value);
 
-RequestPtr ParseRequest(std::string_view str_request, Request::Mode mode)
+    Number number;
+    in_stream >> number;
+    std::string value;
+    std::getline(in_stream, value);
+
+    return number;
+}
+
+inline RequestPtr ParseRequest(std::string_view str_request, Request::Mode mode)
 {
     const auto type_request = CheckTypeRequest(str_request, mode);
     if (!type_request)

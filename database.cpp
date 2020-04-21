@@ -11,7 +11,7 @@ void Database::AddStop(const std::string& name_stop, double x, double y)
 
     if (it == data_stops.end())
     {
-        data_stops[name_stop] = std::make_shared<Stop>(x,y);
+        data_stops[name_stop] = std::make_shared<Stop>(name_stop, x, y);
     }
     else
     {
@@ -25,7 +25,7 @@ void Database::AddorUpdateStop(const std::string& name_stop, double x, double y)
 
     if (it == data_stops.end())
     {
-        data_stops[name_stop] = std::make_shared<Stop>(x,y);
+        data_stops[name_stop] = std::make_shared<Stop>(name_stop, x, y);
     }
     else
     {
@@ -52,7 +52,7 @@ void Database::AddBusLineRoute(const std::string& name_bus, const std::vector<st
             bus_stops.push_back(stop);
         }
 
-        data_buses[name_bus] = std::make_shared<Bus>(name_bus, stops);
+        data_buses[name_bus] = std::make_shared<Bus>(name_bus, bus_stops);
     }
 }
 void Database::AddBusRingRoute(const std::string& name_bus, const std::vector<std::string>& stops)
@@ -67,7 +67,7 @@ void Database::AddBusRingRoute(const std::string& name_bus, const std::vector<st
             bus_stops.push_back(data_stops[stop]);
         }
 
-        data_buses[name_bus] = std::make_shared<Bus>(name_bus, stops);
+        data_buses[name_bus] = std::make_shared<Bus>(name_bus, bus_stops);
     }
 }
 
