@@ -15,13 +15,13 @@ public:
         return db;
     }
 
-    void AddStop();
-    void AddUpdateStop();
-    void AddBusLineRoute();
-    void AddBusRingRoute();
-    void GetBus();
-    void UpdateStats();
+    void AddStop(const std::string&, double = 0.0, double = 0.0);
+    void AddorUpdateStop(const std::string&, double = 0.0, double = 0.0);
+    void AddBusLineRoute(const std::string&, const std::vector<std::string>&);
+    void AddBusRingRoute(const std::string&, const std::vector<std::string>&);
 
+    BusPtr GetBus(const std::string&) const;
+    void UpdateStats();
 private:
     Database();
 

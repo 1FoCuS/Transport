@@ -4,8 +4,11 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unordered_set>
 #include "stop.h"
 
+class Bus;
+using BusPtr = std::shared_ptr<Bus>;
 
 struct Stats
 {
@@ -16,14 +19,22 @@ struct Stats
 class Bus
 {
 public:
-    Bus(const std::string&);
+    Bus(const std::string& bus_name, const std::vector<StopPtr>& stops) : bus_number(bus_name), route(stops) {};
+    void UpdateStats();
+    Stats GetStats() const { return stats; }
+    std::size_t GetStopsCount() const { return route.size(); }
 
 private:
     const std::string bus_number;
     std::vector<StopPtr> route;
     Stats stats;
+
+    std::size_t GetUniqueStopsCount() const;
+    double GetRouteLength() const;
+    double GetDistanceBetweenStops(const Stop&, const Stop&) const;
+
 };
 
-using BusPtr = std::shared_ptr<Bus>;
+
 
 #endif // BUS_H
