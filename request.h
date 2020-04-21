@@ -41,9 +41,10 @@ struct Request
 
 //***************************** 2-level class **********************************
 
-struct ModifyRequest : Request
+struct ModifyRequest : public Request
 {
-    using Request::Request;
+    //using Request::Request;
+    ModifyRequest(TypeRequest _type) : Request(_type) {}
     virtual void Process() const = 0;
 };
 
