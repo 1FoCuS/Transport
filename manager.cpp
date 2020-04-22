@@ -1,10 +1,5 @@
 #include "manager.h"
 
-Manager::Manager()
-{
-
-}
-
 void Manager::run(std::istream& in_stream, std::ostream& output)
 {
     ReadRequestFromStream(in_stream, Request::Mode::WRITE);
@@ -18,7 +13,6 @@ void Manager::run(std::istream& in_stream, std::ostream& output)
 void Manager::ReadRequestFromStream(std::istream& in_stream, Request::Mode mode)
 {
     const std::size_t count_request = ReadNumber<std::size_t>(in_stream);
-//    std::cerr << count_request << std::endl;
     for(std::size_t i = 0; i< count_request; ++i)
     {
         std::string str_request;
@@ -28,30 +22,30 @@ void Manager::ReadRequestFromStream(std::istream& in_stream, Request::Mode mode)
         {
             return;
         }
-        queue_requests.push_back(std::move(request));
+        queue_requests.push(std::move(request));
     }
 }
 
 void Manager::RunRequests()
 {
-    for(const auto& request : queue_requests)
+    while (!queue_requests.empty())
     {
-        const auto& write_request = static_cast<const WriteRequest&>(*request);
+        const auto& write_request = static_cast<const WriteRequest&>(*queue_requests.front());
         write_request.Process();
+        queue_requests.pop();
     }
     Database::Instance().UpdateStats();
-    queue_requests.clear();
 }
 
 std::vector<BusInfoResponse> Manager::GetRequests()
 {
     std::vector<BusInfoResponse> responses;
-    for(const auto& request : queue_requests)
+    while (!queue_requests.empty())
     {
-        const auto& read_request = static_cast<const GetBusInfo&>(*request);
+        const auto& read_request = static_cast<const GetBusInfo&>(*queue_requests.front());
         responses.push_back(read_request.Process());
+        queue_requests.pop();
     }
-    queue_requests.clear();
     return responses;
 }
 
