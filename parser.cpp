@@ -27,16 +27,30 @@ std::string_view Parser::ReadToken(std::string_view& s, std::string_view delimit
     return lhs;
 }
 
+double Parser::ConvertToInt(std::string_view str)
+{
+    size_t pos;
+    const int result = stoi(std::string(str), &pos);
+//    if (pos != str.length())
+//    {
+//        std::stringstream error;
+//        error << "string " << str << " contains " << (str.length() - pos) << " trailing chars";
+//        throw std::invalid_argument(error.str());
+//    }
+
+    return result;
+}
+
 double Parser::ConvertToDouble(std::string_view str)
 {
     size_t pos;
     const double result = stod(std::string(str), &pos);
-    if (pos != str.length())
-    {
-        std::stringstream error;
-        error << "string " << str << " contains " << (str.length() - pos) << " trailing chars";
-        throw std::invalid_argument(error.str());
-    }
+//    if (pos != str.length())
+//    {
+//        std::stringstream error;
+//        error << "string " << str << " contains " << (str.length() - pos) << " trailing chars";
+//        throw std::invalid_argument(error.str());
+//    }
 
     return result;
 }

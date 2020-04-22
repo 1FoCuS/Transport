@@ -69,9 +69,7 @@ struct AddStopRequest : WriteRequest
     void Process() const override final;
 
 private:
-    std::string name;
-    double x;
-    double y;
+    Param_Stop param_stop;
 };
 
 struct AddBusLineRoute : WriteRequest

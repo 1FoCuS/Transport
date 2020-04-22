@@ -8,12 +8,10 @@ int main(int , char *[])
 
     try
     {
-        Manager::Instance().run(/*input*/);
+        Manager::Instance().run(input);
 
     } catch (std::exception& ex)
     {
         std::cerr << ex.what() << std::endl;
     }
-
-
 }

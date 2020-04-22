@@ -15,8 +15,8 @@ public:
         return db;
     }
 
-    void AddStop(const std::string&, double = 0.0, double = 0.0);
-    void AddorUpdateStop(const std::string&, double = 0.0, double = 0.0);
+    void AddStop(const std::string&);
+    void AddorUpdateStop(Param_Stop);
     void AddBusLineRoute(const std::string&, const std::vector<std::string>&);
     void AddBusRingRoute(const std::string&, const std::vector<std::string>&);
 
@@ -24,8 +24,9 @@ public:
     StopPtr GetStop(const std::string&) const;
 
     void UpdateStats();
+
 private:
-    Database();
+    Database() = default;
 
     std::unordered_map<std::string, StopPtr> data_stops;
     std::unordered_map<std::string, BusPtr> data_buses;

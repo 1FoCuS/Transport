@@ -7,7 +7,8 @@ void BusInfoResponse::AddToStream(std::ostream& os) const
     {
         os << bus->GetStopsCount() << " stops on route, "
            << bus->GetStats().unique_stops << " unique stops, "
-           << bus->GetStats().route_length << " route length";
+           << bus->GetStats().route_length << " route length, "
+           << bus->GetStats().k << " curvature";
     } else
     {
         os << "not found";

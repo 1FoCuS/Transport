@@ -14,6 +14,8 @@ public:
     static pars_str_t SplitTwoStrict(std::string_view str, std::string_view delimiter = " ");
     static std::string_view ReadToken(std::string_view&, std::string_view = " ");
     static std::pair<std::string_view, std::string_view> SplitTwo(std::string_view, std::string_view = " ");
+
+    static double ConvertToInt(std::string_view);
     static double ConvertToDouble(std::string_view);
 };
 

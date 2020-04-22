@@ -1,38 +1,26 @@
 #include "database.h"
 #include <iostream>
 
-Database::Database()
+void Database::AddStop(const std::string& name)
 {
-
-}
-
-void Database::AddStop(const std::string& name_stop, double x, double y)
-{
-    auto it = data_stops.find(name_stop);
-
-    if (it == data_stops.end())
+    if (data_stops.find(name) == data_stops.end())
     {
-        data_stops[name_stop] = std::make_shared<Stop>(name_stop, x, y);
-    }
-    else
-    {
-        //it->second->SetNewPoint(x,y);
+        data_stops[name] = std::make_shared<Stop>(name);
     }
 }
 
-void Database::AddorUpdateStop(const std::string& name_stop, double x, double y)
+void Database::AddorUpdateStop(Param_Stop param_stop)
 {
-    auto it = data_stops.find(name_stop);
+    auto it = data_stops.find(param_stop.name);
 
     if (it == data_stops.end())
     {
-//        std::cerr << "add new stop " << name_stop << std::endl ;
-        data_stops[name_stop] = std::make_shared<Stop>(name_stop, x, y);
+        data_stops[param_stop.name] = std::make_shared<Stop>(param_stop);
     }
     else
     {
-//        std::cerr << "new pos for stop " << name_stop << std::endl ;
-        it->second->SetNewPoint(x,y);
+        it->second->SetNewPoint(param_stop.point.x,param_stop.point.y);
+        it->second->AddDistances(std::move(param_stop.stop_dist));
     }
 }
 
@@ -95,4 +83,5 @@ void Database::UpdateStats()
     {
         route.second->UpdateStats();
     }
+
 }

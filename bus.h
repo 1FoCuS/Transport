@@ -14,6 +14,8 @@ struct Stats
 {
     std::size_t unique_stops = 0;
     double route_length = 0.0;
+    double geo_route_length = 0.0;
+    double k = 1.0;
 };
 
 class Bus
@@ -24,6 +26,10 @@ public:
     Stats GetStats() const { return stats; }
     std::size_t GetStopsCount() const { return route.size(); }
 
+    double ComputeRouteLength() const;
+    double ComputeGeographicalRouteLength() const;
+    double ComputeCurvature(double real_length, double geographical_length) const;
+
 private:
     const std::string bus_number;
     std::vector<StopPtr> route;
@@ -31,10 +37,8 @@ private:
 
     std::size_t GetUniqueStopsCount() const;
     double GetRouteLength() const;
-    double GetDistanceBetweenStops(const Stop&, const Stop&) const;
-
+    double GetGeoDistanceBetweenStops(StopPtr lhs, StopPtr rhs) const;
+    double GetRealDistanceBetweenStops(StopPtr lhs, StopPtr rhs) const;
 };
-
-
 
 #endif // BUS_H

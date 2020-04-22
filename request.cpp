@@ -61,13 +61,20 @@ RequestPtr Request::Create(Request::TypeRequest type)
 //************************************* Parse-methods ******************************************************
 void AddStopRequest::Parse(std::string_view input)
 {
-    name = Parser::ReadToken(input, ": ");
-    x = Parser::ConvertToDouble(Parser::ReadToken(input, ", "));
-    y = Parser::ConvertToDouble(input);
+    param_stop.name = Parser::ReadToken(input, ": ");
+    param_stop.point.x = Parser::ConvertToDouble(Parser::ReadToken(input, ", "));
+    param_stop.point.y = Parser::ConvertToDouble(Parser::ReadToken(input, ", "));
+
+    while(!input.empty())
+    {
+        int dist = Parser::ConvertToInt(Parser::ReadToken(input, "m to "));
+        std::string new_stop = std::string(Parser::ReadToken(input, ", "));
+        param_stop.stop_dist[new_stop] = dist;
+    }
 }
 void AddStopRequest::Process() const
 {
-    Database::Instance().AddorUpdateStop(name, x, y);
+    Database::Instance().AddorUpdateStop(std::move(param_stop));
 }
 
 
