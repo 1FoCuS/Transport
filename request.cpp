@@ -1,12 +1,11 @@
 #include "request.h"
 
-
 std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view str, Request::Mode mode)
 {
 
     if (mode==Request::Mode::WRITE)
     {
-        if (str.find("BUS")==0)
+        if (str.find("Bus")==0)
         {
             return (str.find('-') == str.npos) ? Request::TypeRequest::ADD_BUS_RING : Request::TypeRequest::ADD_BUS_LINE;
         } else
@@ -44,7 +43,7 @@ RequestPtr Request::Create(Request::TypeRequest type)
         case RT::ADD_BUS_RING:
             return std::make_unique<AddBusRingRoute>();
         case RT::GET_INFO_BUS:
-            return std::make_unique<GetBusInfo<BusInfoResponse>>();
+            return std::make_unique<GetBusInfo>();
         default:
             return nullptr;
     }
@@ -58,7 +57,7 @@ void AddStopRequest::Parse(std::string_view input)
 }
 void AddStopRequest::Process() const
 {
-    // add to database stop -> name,x,y
+    Database::Instance().AddorUpdateStop(name, x, y);
 }
 
 
@@ -74,7 +73,7 @@ void AddBusLineRoute::Parse(std::string_view str_names)
 
 void AddBusLineRoute::Process() const
 {
-    // add to database route and bus
+    Database::Instance().AddBusLineRoute(id, stops);
 }
 
 void AddBusRingRoute::Parse(std::string_view str_names)
@@ -88,7 +87,7 @@ void AddBusRingRoute::Parse(std::string_view str_names)
 }
 void AddBusRingRoute::Process() const
 {
-    // add to database route and bus
+    Database::Instance().AddBusRingRoute(id, stops);
 }
 
 void GetBusInfo::Parse(std::string_view input)
@@ -98,37 +97,10 @@ void GetBusInfo::Parse(std::string_view input)
 
 BusInfoResponse GetBusInfo::Process() const
 {
-
+    return BusInfoResponse(bus_id, Database::Instance().GetBus(bus_id));
 }
 
 //******************************* function for work with request*********************************************
-// @todo optimisation read number
-template <typename Number>
-Number ReadNumber(std::istream& in_stream)
-{
-    assert(std::is_arithmetic<Number>::value);
 
-    Number number;
-    in_stream >> number;
-    std::string value;
-    std::getline(in_stream, value);
 
-    return number;
-}
 
-RequestPtr ParseRequest(std::string_view str_request, Request::Mode mode)
-{
-    const auto type_request = CheckTypeRequest(str_request, mode);
-    if (!type_request)
-    {
-        return nullptr;
-    }
-    auto request_ptr = Request::Create(type_request.value());
-    if (request_ptr)
-    {
-        Parser::ReadToken(str_request);
-        request_ptr->Parse(str_request);
-    }
-
-    return request_ptr;
-}

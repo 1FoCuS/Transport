@@ -7,12 +7,14 @@
 #include <string>
 #include <string_view>
 #include <optional>
+#include <cassert>
+
 #include "response.h"
 #include "parser.h"
+#include "database.h"
 
 struct Request;
 using RequestPtr = std::unique_ptr<Request>;
-
 
 //***************************** 1-level class **********************************
 struct Request
@@ -41,9 +43,9 @@ struct Request
 
 //***************************** 2-level class **********************************
 
-struct ModifyRequest : Request
+struct WriteRequest : public Request
 {
-    using Request::Request;
+    WriteRequest(TypeRequest type) : Request(type) {}
     virtual void Process() const = 0;
 };
 
@@ -51,7 +53,7 @@ struct ModifyRequest : Request
 template <typename ResultType>
 struct ReadRequest: Request
 {
-    using Request::Request;
+    ReadRequest(TypeRequest type) : Request(type) {}
     virtual ResultType Process() const = 0;
 };
 
@@ -59,9 +61,10 @@ struct ReadRequest: Request
 
 
 // ************************* 3-level write-request ******************************
-struct AddStopRequest : ModifyRequest
+struct AddStopRequest : WriteRequest
 {
-    AddStopRequest() : ModifyRequest(TypeRequest::ADD_STOP) {}
+    AddStopRequest() : WriteRequest(TypeRequest::ADD_STOP) {}
+
     void Parse(std::string_view input) override final;
     void Process() const override final;
 
@@ -71,21 +74,24 @@ private:
     double y;
 };
 
-struct AddBusLineRoute : ModifyRequest
+struct AddBusLineRoute : WriteRequest
 {
-    AddBusLineRoute() : ModifyRequest(TypeRequest::ADD_BUS_LINE) {}
+    AddBusLineRoute() : WriteRequest(TypeRequest::ADD_BUS_LINE) {}
     void Parse(std::string_view input) override final;
     void Process() const override final;
+
 private:
     std::string id;
     std::vector<std::string> stops;
 };
 
-struct AddBusRingRoute : ModifyRequest
+struct AddBusRingRoute : WriteRequest
 {
-    AddBusRingRoute() : ModifyRequest(TypeRequest::ADD_BUS_RING) {}
+    AddBusRingRoute() : WriteRequest(TypeRequest::ADD_BUS_RING) {}
+
     void Parse(std::string_view input) override final;
     void Process() const override final;
+
 private:
     std::string id;
     std::vector<std::string> stops;
@@ -97,8 +103,10 @@ private:
 struct GetBusInfo : ReadRequest<BusInfoResponse>
 {
     GetBusInfo() : ReadRequest(TypeRequest::GET_INFO_BUS) {}
+
     virtual void Parse(std::string_view) override final;
     virtual BusInfoResponse Process() const override final;
+
 private:
     std::string bus_id;
 };
@@ -107,10 +115,36 @@ private:
 
 std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view, Request::Mode);
 
+// @todo optimisation read number
 template <typename Number>
-static Number ReadNumber(std::istream&);
+inline  Number ReadNumber(std::istream& in_stream)
+{
+    assert(std::is_arithmetic<Number>::value);
 
-static RequestPtr ParseRequest(std::string_view, Request::Mode);
+    Number number;
+    in_stream >> number;
+    std::string value;
+    std::getline(in_stream, value);
+
+    return number;
+}
+
+inline RequestPtr ParseRequest(std::string_view str_request, Request::Mode mode)
+{
+    const auto type_request = CheckTypeRequest(str_request, mode);
+    if (!type_request)
+    {
+        return nullptr;
+    }
+    auto request_ptr = Request::Create(type_request.value());
+    if (request_ptr)
+    {
+        Parser::ReadToken(str_request);
+        request_ptr->Parse(str_request);
+    }
+
+    return request_ptr;
+}
 
 
 #endif // REQUEST_H

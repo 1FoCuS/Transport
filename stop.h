@@ -3,6 +3,10 @@
 
 #include <string>
 #include <memory>
+#include <cmath>
+
+class Stop;
+using StopPtr = std::shared_ptr<Stop>;
 
 struct Point
 {
@@ -14,13 +18,23 @@ struct Point
 class Stop
 {
 public:
-    Stop(const std::string&, double x = 0.0, double y = 0.0);
+    Stop(const std::string& name, double x = 0.0, double y = 0.0) : name(name), point(x,y) {}
+    void SetNewPoint(double x, double y) { point.x = x; point.y = y; }
 
+    Point GetPointInRadians() const
+    {
+        return Point(DegreesToRadians(point.x), DegreesToRadians(point.y));
+    }
 private:
     const std::string name;
-    const Point point;
+    Point point;
+
+    double DegreesToRadians(double number) const
+    {
+        return number * M_PI / 180.0;
+    }
 };
 
-using StopPtr = std::shared_ptr<Stop>;
+
 
 #endif // STOP_H

@@ -15,8 +15,6 @@ public:
     static std::string_view ReadToken(std::string_view&, std::string_view = " ");
     static std::pair<std::string_view, std::string_view> SplitTwo(std::string_view, std::string_view = " ");
     static double ConvertToDouble(std::string_view);
-
-
 };
 
 #endif // PARSER_H
