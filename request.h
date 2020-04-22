@@ -24,7 +24,8 @@ struct Request
         ADD_STOP,
         ADD_BUS_LINE,
         ADD_BUS_RING,
-        GET_INFO_BUS
+        GET_INFO_BUS,
+        GET_INFO_STOP
     };
 
     enum class Mode
@@ -50,11 +51,10 @@ struct WriteRequest : public Request
 };
 
 
-template <typename ResultType>
 struct ReadRequest: Request
 {
     ReadRequest(TypeRequest type) : Request(type) {}
-    virtual ResultType Process() const = 0;
+    virtual ResponsePtr Process() const = 0;
 };
 
 //***************************** 3-level class **********************************
@@ -100,15 +100,26 @@ private:
 
 // ************************* 3-level read-request ****************************
 
-struct GetBusInfo : ReadRequest<BusInfoResponse>
+struct GetBusInfo : ReadRequest
 {
     GetBusInfo() : ReadRequest(TypeRequest::GET_INFO_BUS) {}
 
     virtual void Parse(std::string_view) override final;
-    virtual BusInfoResponse Process() const override final;
+    virtual ResponsePtr Process() const override final;
 
 private:
     std::string bus_id;
+};
+
+struct GetStopInfo : ReadRequest
+{
+    GetStopInfo() : ReadRequest(TypeRequest::GET_INFO_STOP) {}
+
+    virtual void Parse(std::string_view) override final;
+    virtual ResponsePtr Process() const override final;
+
+private:
+    std::string stop_name;
 };
 
 // ************************* function for work with request ******************
@@ -136,6 +147,7 @@ inline RequestPtr ParseRequest(std::string_view str_request, Request::Mode mode)
     {
         return nullptr;
     }
+
     auto request_ptr = Request::Create(type_request.value());
     if (request_ptr)
     {

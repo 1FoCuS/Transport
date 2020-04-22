@@ -24,6 +24,14 @@ std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view str, Reque
             {
                 return Request::TypeRequest::GET_INFO_BUS;
             }
+            else
+            {
+                if (str.find("Stop")==0)
+                {
+                    return  Request::TypeRequest::GET_INFO_STOP;
+                }
+            }
+
         }
     }
 
@@ -44,6 +52,8 @@ RequestPtr Request::Create(Request::TypeRequest type)
             return std::make_unique<AddBusRingRoute>();
         case RT::GET_INFO_BUS:
             return std::make_unique<GetBusInfo>();
+        case RT::GET_INFO_STOP:
+            return std::make_unique<GetStopInfo>();
         default:
             return nullptr;
     }
@@ -95,9 +105,19 @@ void GetBusInfo::Parse(std::string_view input)
     bus_id = input;
 }
 
-BusInfoResponse GetBusInfo::Process() const
+ ResponsePtr GetBusInfo::Process() const
 {
-    return BusInfoResponse(bus_id, Database::Instance().GetBus(bus_id));
+    return std::make_shared<BusInfoResponse>(bus_id, Database::Instance().GetBus(bus_id));
+}
+
+void GetStopInfo::Parse(std::string_view name)
+{
+    stop_name = name;
+}
+
+ ResponsePtr GetStopInfo::Process() const
+{
+    return std::make_shared<StopInfoResponse>(stop_name, Database::Instance().GetStop(stop_name));
 }
 
 //******************************* function for work with request*********************************************

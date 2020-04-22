@@ -3,11 +3,21 @@
 void Manager::run(std::istream& in_stream, std::ostream& output)
 {
     ReadRequestFromStream(in_stream, Request::Mode::WRITE);
-
     RunRequests();
+
     ReadRequestFromStream(in_stream, Request::Mode::READ_ONLY);
-    const auto responses = GetRequests();
-    PrintResponses(responses, output);
+    RunResponse();
+
+    PrintClearResponses(output);
+}
+
+void Manager::PrintClearResponses(std::ostream& stream)
+{
+    while(!queue_responses.empty())
+    {
+        stream << queue_responses.front() << '\n';
+        queue_responses.pop();
+    }
 }
 
 void Manager::ReadRequestFromStream(std::istream& in_stream, Request::Mode mode)
@@ -37,15 +47,12 @@ void Manager::RunRequests()
     Database::Instance().UpdateStats();
 }
 
-std::vector<BusInfoResponse> Manager::GetRequests()
+void Manager::RunResponse()
 {
-    std::vector<BusInfoResponse> responses;
     while (!queue_requests.empty())
     {
-        const auto& read_request = static_cast<const GetBusInfo&>(*queue_requests.front());
-        responses.push_back(read_request.Process());
+        const auto& read_request = static_cast<const ReadRequest&>(*queue_requests.front());
+        queue_responses.push(read_request.Process());
         queue_requests.pop();
     }
-    return responses;
 }
-

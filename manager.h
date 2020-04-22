@@ -16,15 +16,17 @@ public:
     }
 
     void run(std::istream& input = std::cin, std::ostream& output = std::cout);
+    void PrintClearResponses(std::ostream& stream = std::cout);
 
 private:
     Manager() = default;
 
     void ReadRequestFromStream(std::istream&, Request::Mode);
     void RunRequests();
-    std::vector<BusInfoResponse> GetRequests();
+    void RunResponse();
 
     std::queue<RequestPtr> queue_requests;
+    std::queue<ResponsePtr> queue_responses;
 };
 
 #endif // MANAGER_H

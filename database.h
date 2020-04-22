@@ -21,6 +21,8 @@ public:
     void AddBusRingRoute(const std::string&, const std::vector<std::string>&);
 
     BusPtr GetBus(const std::string&) const;
+    StopPtr GetStop(const std::string&) const;
+
     void UpdateStats();
 private:
     Database();

@@ -14,16 +14,28 @@ void BusInfoResponse::AddToStream(std::ostream& os) const
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const Response& response)
+void StopInfoResponse::AddToStream(std::ostream& os) const
 {
-    response.AddToStream(os);
-    return os;
-}
-
-void PrintResponses(const std::vector<BusInfoResponse>& responses, std::ostream& stream)
-{
-    for (auto response : responses)
+    os << "Stop " << stop_name << ": ";
+    if (stop_ptr)
     {
-        stream << response << '\n';
+        const auto& buses = stop_ptr->GetBuses();
+        if (!buses.empty()) {
+            os << "buses ";
+            for (const auto& bus : buses)
+            {
+                os << bus << ' ';
+            }
+        } else
+        {
+            os << "no buses";
+        }
+    } else
+    {
+        os << "not found";
     }
 }
+
+//**************************************************************************************
+
+
