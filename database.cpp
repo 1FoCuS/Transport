@@ -1,4 +1,5 @@
 #include "database.h"
+#include <iostream>
 
 Database::Database()
 {
@@ -15,7 +16,7 @@ void Database::AddStop(const std::string& name_stop, double x, double y)
     }
     else
     {
-        it->second->SetNewPoint(x,y);
+        //it->second->SetNewPoint(x,y);
     }
 }
 
@@ -25,10 +26,12 @@ void Database::AddorUpdateStop(const std::string& name_stop, double x, double y)
 
     if (it == data_stops.end())
     {
+//        std::cerr << "add new stop " << name_stop << std::endl ;
         data_stops[name_stop] = std::make_shared<Stop>(name_stop, x, y);
     }
     else
     {
+//        std::cerr << "new pos for stop " << name_stop << std::endl ;
         it->second->SetNewPoint(x,y);
     }
 }

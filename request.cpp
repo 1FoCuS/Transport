@@ -5,7 +5,7 @@ std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view str, Reque
 
     if (mode==Request::Mode::WRITE)
     {
-        if (str.find("BUS")==0)
+        if (str.find("Bus")==0)
         {
             return (str.find('-') == str.npos) ? Request::TypeRequest::ADD_BUS_RING : Request::TypeRequest::ADD_BUS_LINE;
         } else

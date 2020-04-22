@@ -18,7 +18,7 @@ void Manager::run(std::istream& in_stream, std::ostream& output)
 void Manager::ReadRequestFromStream(std::istream& in_stream, Request::Mode mode)
 {
     const std::size_t count_request = ReadNumber<std::size_t>(in_stream);
-
+//    std::cerr << count_request << std::endl;
     for(std::size_t i = 0; i< count_request; ++i)
     {
         std::string str_request;
@@ -39,8 +39,8 @@ void Manager::RunRequests()
         const auto& write_request = static_cast<const WriteRequest&>(*request);
         write_request.Process();
     }
-
     Database::Instance().UpdateStats();
+    queue_requests.clear();
 }
 
 std::vector<BusInfoResponse> Manager::GetRequests()
@@ -51,6 +51,7 @@ std::vector<BusInfoResponse> Manager::GetRequests()
         const auto& read_request = static_cast<const GetBusInfo&>(*request);
         responses.push_back(read_request.Process());
     }
+    queue_requests.clear();
     return responses;
 }
 
