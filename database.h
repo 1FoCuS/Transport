@@ -16,7 +16,7 @@ public:
     }
 
     void AddStop(const std::string&);
-    void AddorUpdateStop(Param_Stop);
+    void AddorUpdateStop(const Param_Stop&);
     void AddBusLineRoute(const std::string&, const std::vector<std::string>&);
     void AddBusRingRoute(const std::string&, const std::vector<std::string>&);
 

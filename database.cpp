@@ -9,7 +9,7 @@ void Database::AddStop(const std::string& name)
     }
 }
 
-void Database::AddorUpdateStop(Param_Stop param_stop)
+void Database::AddorUpdateStop(const Param_Stop& param_stop)
 {
     auto it = data_stops.find(param_stop.name);
 
@@ -20,7 +20,7 @@ void Database::AddorUpdateStop(Param_Stop param_stop)
     else
     {
         it->second->SetNewPoint(param_stop.point.x,param_stop.point.y);
-        it->second->AddDistances(std::move(param_stop.stop_dist));
+        it->second->AddDistances(param_stop.stop_dist);
     }
 }
 
@@ -44,7 +44,7 @@ void Database::AddBusLineRoute(const std::string& name_bus, const std::vector<st
             bus_stops.push_back(stop);
         }
 
-        data_buses[name_bus] = std::make_shared<Bus>(name_bus, bus_stops);
+        data_buses[name_bus] = std::make_shared<Bus>(name_bus, std::move(bus_stops));
     }
 }
 void Database::AddBusRingRoute(const std::string& name_bus, const std::vector<std::string>& stops)
@@ -60,7 +60,7 @@ void Database::AddBusRingRoute(const std::string& name_bus, const std::vector<st
             bus_stops.push_back(data_stops[stop]);
         }
 
-        data_buses[name_bus] = std::make_shared<Bus>(name_bus, bus_stops);
+        data_buses[name_bus] = std::make_shared<Bus>(name_bus, std::move(bus_stops));
     }
 }
 

@@ -74,7 +74,7 @@ void AddStopRequest::Parse(std::string_view input)
 }
 void AddStopRequest::Process() const
 {
-    Database::Instance().AddorUpdateStop(std::move(param_stop));
+    Database::Instance().AddorUpdateStop(param_stop);
 }
 
 

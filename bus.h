@@ -21,7 +21,7 @@ struct Stats
 class Bus
 {
 public:
-    Bus(const std::string& bus_name, const std::vector<StopPtr>& stops) : bus_number(bus_name), route(stops) {};
+    Bus(const std::string& bus_name, std::vector<StopPtr> stops) : bus_number(bus_name), route(std::move(stops)) {};
     void UpdateStats();
     Stats GetStats() const { return stats; }
     std::size_t GetStopsCount() const { return route.size(); }
