@@ -25,7 +25,7 @@ struct Param_Stop
 
     std::string name;
     Point point;
-    std::unordered_map<std::string, double> stop_dist;
+    std::unordered_map<std::string, int> stop_dist;
 };
 
 class Stop
@@ -39,7 +39,7 @@ public:
                                 ) {}
 
     void SetNewPoint(double x, double y) { point.x = x; point.y = y; }
-    void AddDistances(std::unordered_map<std::string, double> dist)
+    void AddDistances(std::unordered_map<std::string, int> dist)
     {
         stops_distance = {
             std::make_move_iterator(dist.begin()),

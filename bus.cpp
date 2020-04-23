@@ -5,8 +5,8 @@ void Bus::UpdateStats()
     stats.unique_stops = GetUniqueStopsCount();
     stats.route_length = GetRouteLength();
 
-    stats.geo_route_length = ComputeGeographicalRouteLength();
-    stats.k = ComputeCurvature(stats.route_length, stats.geo_route_length);
+    stats.geo_route_length = GetGeoRouteLength();
+    stats.k = GetDiffrent(stats.route_length, stats.geo_route_length);
 }
 
 std::size_t Bus::GetUniqueStopsCount() const
@@ -20,6 +20,17 @@ double Bus::GetRouteLength() const
     double new_route_length = 0;
     const int route_len = route.size();
     for (int i = 1; i < route_len; ++i)
+    {
+        new_route_length += GetRealDistanceBetweenStops(route[i - 1], route[i]);
+    }
+    return new_route_length;
+}
+
+double Bus::GetGeoRouteLength() const
+{
+    double new_route_length = 0;
+    const int n = route.size();
+    for (int i = 1; i < n; ++i)
     {
         new_route_length += GetGeoDistanceBetweenStops(route[i - 1], route[i]);
     }
@@ -52,29 +63,7 @@ double Bus::GetRealDistanceBetweenStops(StopPtr lhs, StopPtr rhs) const
     }
 }
 
-double Bus::ComputeRouteLength() const
+double Bus::GetDiffrent(double real_length, double geo_length) const
 {
-    double new_route_length = 0;
-    const int n = route.size();
-    for (int i = 1; i < n; ++i)
-    {
-        new_route_length += GetRealDistanceBetweenStops(route[i - 1], route[i]);
-    }
-    return new_route_length;
-}
-
-double Bus::ComputeGeographicalRouteLength() const
-{
-    double new_route_length = 0;
-    const int n = route.size();
-    for (int i = 1; i < n; ++i)
-    {
-        new_route_length += GetGeoDistanceBetweenStops(route[i - 1], route[i]);
-    }
-    return new_route_length;
-}
-
-double Bus::ComputeCurvature(double real_length, double geographical_length) const
-{
-    return real_length / geographical_length;
+    return real_length / geo_length;
 }

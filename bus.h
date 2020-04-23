@@ -26,19 +26,18 @@ public:
     Stats GetStats() const { return stats; }
     std::size_t GetStopsCount() const { return route.size(); }
 
-    double ComputeRouteLength() const;
-    double ComputeGeographicalRouteLength() const;
-    double ComputeCurvature(double real_length, double geographical_length) const;
-
 private:
     const std::string bus_number;
     std::vector<StopPtr> route;
     Stats stats;
 
     std::size_t GetUniqueStopsCount() const;
+
     double GetRouteLength() const;
+    double GetGeoRouteLength() const;
     double GetGeoDistanceBetweenStops(StopPtr lhs, StopPtr rhs) const;
     double GetRealDistanceBetweenStops(StopPtr lhs, StopPtr rhs) const;
+    double GetDiffrent(double, double) const;
 };
 
 #endif // BUS_H
