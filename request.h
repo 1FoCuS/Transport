@@ -138,6 +138,15 @@ inline  Number ReadNumber(std::istream& in_stream)
     return number;
 }
 
+inline RequestPtr ParseRequest(const Json::Document& doc, Request::Mode mode )
+{
+    const auto type_request = CheckTypeRequest(str_request, mode);
+
+}
+
+
+
+
 inline RequestPtr ParseRequest(std::string_view str_request, Request::Mode mode)
 {
     const auto type_request = CheckTypeRequest(str_request, mode);

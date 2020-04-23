@@ -5,6 +5,7 @@
 #include <fstream>
 #include <queue>
 #include "request.h"
+#include "json.h"
 
 class Manager
 {
@@ -22,6 +23,8 @@ private:
     Manager() = default;
 
     void ReadRequestFromStream(std::istream&, Request::Mode);
+    void ReadRequestFromJson(const Json::Document&, Request::Mode);
+
     void RunRequests();
     void RunResponse();
 

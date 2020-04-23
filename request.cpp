@@ -38,6 +38,20 @@ std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view str, Reque
     return std::nullopt;
 }
 
+std::optional<Request::TypeRequest> CheckTypeRequest(const Json::Node& node, Request::Mode mode)
+{
+
+    if (mode==Request::Mode::WRITE)
+    {
+        if (node.AsMap().at("type").AsString() == "Bus")
+        {
+            if (node.AsMap().at("roundtrip").) // bool?
+        }
+    }
+
+    return std::nullopt;
+}
+
 RequestPtr Request::Create(Request::TypeRequest type)
 {
     using RT = Request::TypeRequest;

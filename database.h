@@ -3,6 +3,7 @@
 
 #include "stop.h"
 #include "bus.h"
+#include "json.h"
 #include <unordered_map>
 
 class Database
