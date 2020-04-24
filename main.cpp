@@ -4,11 +4,11 @@ int main(int , char *[])
 {
     std::ifstream input("input.txt");
     std::ofstream output("output.txt");
-    std::cout.precision(7);
+    std::cout.precision(6);
 
     try
     {
-        Manager::Instance().run(input);
+        Manager::Instance().run(/*input/*, output*/);
 
     } catch (std::exception& ex)
     {

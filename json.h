@@ -8,40 +8,51 @@
 
 namespace Json {
 
-  class Node : std::variant<std::vector<Node>,
-                            std::map<std::string, Node>,
-                            int,
-                            std::string> {
-  public:
-    using variant::variant;
+    class Node : std::variant<std::vector<Node>,
+        std::map<std::string, Node>,
+        int,
+        double,
+        bool,
+        std::string> {
+    public:
+        using variant::variant;
 
-    const auto& AsArray() const {
-      return std::get<std::vector<Node>>(*this);
-    }
-    const auto& AsMap() const {
-      return std::get<std::map<std::string, Node>>(*this);
-    }
-    int AsInt() const {
-      return std::get<int>(*this);
-    }
-    const auto& AsString() const {
-      return std::get<std::string>(*this);
-    }
-    const auto& AsBool() const {
-      return std::get<bool>(*this);
-    }
-  };
+        const auto& AsArray() const {
+            return std::get<std::vector<Node>>(*this);
+        }
+        const auto& AsMap() const {
+            return std::get<std::map<std::string, Node>>(*this);
+        }
+        int AsInt() const {
+            return std::get<int>(*this);
+        }
+        double AsDouble() const {
+            return std::holds_alternative<double>(*this)
+                ? std::get<double>(*this)
+                : static_cast<double>(std::get<int>(*this));
+        }
+        bool AsBool() const {
+            return std::get<bool>(*this);
+        }
+        const auto& AsString() const {
+            return std::get<std::string>(*this);
+        }
 
-  class Document {
-  public:
-    explicit Document(Node root);
+        void AddToStream(std::ostream& os) const;
+    };
 
-    const Node& GetRoot() const;
+    class Document {
+    public:
+        explicit Document(Node root);
 
-  private:
-    Node root;
-  };
+        const Node& GetRoot() const;
 
-  Document Load(std::istream& input);
+    private:
+        Node root;
+    };
+
+    Document Load(std::istream& input);
 
 }
+
+std::ostream& operator<<(std::ostream& os, const Json::Node& node);

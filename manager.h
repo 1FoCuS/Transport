@@ -18,7 +18,7 @@ public:
 
     void run(std::istream& input = std::cin, std::ostream& output = std::cout);
     void PrintClearResponses(std::ostream& stream = std::cout);
-
+    void PrintClearResponsesJson(std::ostream& stream = std::cout);
 private:
     Manager() = default;
 

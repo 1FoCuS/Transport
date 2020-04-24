@@ -3,16 +3,18 @@
 void Manager::run(std::istream& in_stream, std::ostream& output)
 {
     Json::Document document = Json::Load(in_stream);
-
-
-
+    ReadRequestFromJson(document, Request::Mode::WRITE);
+    RunRequests();
+    ReadRequestFromJson(document, Request::Mode::READ_ONLY);
+    RunResponse();
+    PrintClearResponsesJson(output);
+/*
     ReadRequestFromStream(in_stream, Request::Mode::WRITE);
     RunRequests();
 
     ReadRequestFromStream(in_stream, Request::Mode::READ_ONLY);
     RunResponse();
-
-    PrintClearResponses(output);
+*/
 }
 
 void Manager::PrintClearResponses(std::ostream& stream)
@@ -22,6 +24,17 @@ void Manager::PrintClearResponses(std::ostream& stream)
         stream << queue_responses.front() << '\n';
         queue_responses.pop();
     }
+}
+
+void Manager::PrintClearResponsesJson(std::ostream& stream)
+{
+    std::vector<Json::Node> json_response;
+    while(!queue_responses.empty())
+    {
+        json_response.push_back(queue_responses.front()->ToJson());
+        queue_responses.pop();
+    }
+    stream << Json::Node(json_response);
 }
 
 void Manager::ReadRequestFromStream(std::istream& in_stream, Request::Mode mode)
@@ -40,16 +53,18 @@ void Manager::ReadRequestFromStream(std::istream& in_stream, Request::Mode mode)
     }
 }
 
-void ReadRequestFromJson(const Json::Document& doc, Request::Mode mode)
+void Manager::ReadRequestFromJson(const Json::Document& doc, Request::Mode mode)
 {
     const Json::Node& root = doc.GetRoot();
     const std::string request_type = (mode == Request::Mode::WRITE) ? "base_requests" : "stat_requests";
     const auto& json_requests = root.AsMap().at(request_type).AsArray();
-    std::size_t count_request = json_requests.size();
 
-    for(const auto& request : json_requests)
+    for(const auto& json_request : json_requests)
     {
-        // Parser?
+        if (auto request = ParseRequestJson(json_request, mode) )
+        {
+            queue_requests.push(std::move(request));
+        }
     }
 }
 

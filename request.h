@@ -36,10 +36,14 @@ struct Request
 
     Request(TypeRequest type) : type(type) {}
     static RequestPtr Create(TypeRequest);
+
     virtual void Parse(std::string_view) = 0;
+    virtual void Parse(const Json::Node&) = 0;
+
     virtual ~Request() = default;
 
     const TypeRequest type;
+    std::size_t request_id = 0;
 };
 
 //***************************** 2-level class **********************************
@@ -66,6 +70,8 @@ struct AddStopRequest : WriteRequest
     AddStopRequest() : WriteRequest(TypeRequest::ADD_STOP) {}
 
     void Parse(std::string_view input) override final;
+    void Parse(const Json::Node&) override final;
+
     void Process() const override final;
 
 private:
@@ -76,6 +82,8 @@ struct AddBusLineRoute : WriteRequest
 {
     AddBusLineRoute() : WriteRequest(TypeRequest::ADD_BUS_LINE) {}
     void Parse(std::string_view input) override final;
+    void Parse(const Json::Node&) override final;
+
     void Process() const override final;
 
 private:
@@ -88,6 +96,8 @@ struct AddBusRingRoute : WriteRequest
     AddBusRingRoute() : WriteRequest(TypeRequest::ADD_BUS_RING) {}
 
     void Parse(std::string_view input) override final;
+    void Parse(const Json::Node&) override final;
+
     void Process() const override final;
 
 private:
@@ -103,6 +113,8 @@ struct GetBusInfo : ReadRequest
     GetBusInfo() : ReadRequest(TypeRequest::GET_INFO_BUS) {}
 
     virtual void Parse(std::string_view) override final;
+    void Parse(const Json::Node&) override final;
+
     virtual ResponsePtr Process() const override final;
 
 private:
@@ -114,6 +126,8 @@ struct GetStopInfo : ReadRequest
     GetStopInfo() : ReadRequest(TypeRequest::GET_INFO_STOP) {}
 
     virtual void Parse(std::string_view) override final;
+    void Parse(const Json::Node&) override final;
+
     virtual ResponsePtr Process() const override final;
 
 private:
@@ -123,6 +137,7 @@ private:
 // ************************* function for work with request ******************
 
 std::optional<Request::TypeRequest> CheckTypeRequest(std::string_view, Request::Mode);
+std::optional<Request::TypeRequest> CheckTypeRequest(const Json::Node&, Request::Mode);
 
 // @todo optimisation read number
 template <typename Number>
@@ -138,10 +153,19 @@ inline  Number ReadNumber(std::istream& in_stream)
     return number;
 }
 
-inline RequestPtr ParseRequest(const Json::Document& doc, Request::Mode mode )
+inline RequestPtr ParseRequestJson(const Json::Node& json_request, Request::Mode mode )
 {
-    const auto type_request = CheckTypeRequest(str_request, mode);
-
+    const auto type_request = CheckTypeRequest(json_request, mode);
+    if (!type_request)
+    {
+        return nullptr;
+    }
+    auto request_ptr = Request::Create(type_request.value());
+    if (request_ptr)
+    {
+        request_ptr->Parse(json_request);
+    }
+    return request_ptr;
 }
 
 
