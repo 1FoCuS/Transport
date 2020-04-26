@@ -10,6 +10,7 @@
 class Stop;
 using StopPtr = std::shared_ptr<Stop>;
 
+
 struct Point
 {
     Point() = default;
@@ -58,7 +59,13 @@ public:
 
     std::optional<double> GetDistanceTo(StopPtr rhs) const ;
     const std::string& GetName() const { return name; }
+
+    Stop& SetIndex(std::size_t ind) { index = ind; return *this; }
+    std::size_t GetIndex() const { return index; }
+
 private:
+    std::size_t index = 0;
+
     const std::string name;
     Point point;
     std::set<std::string> buses;

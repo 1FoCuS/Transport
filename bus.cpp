@@ -48,7 +48,7 @@ double Bus::GetGeoDistanceBetweenStops(StopPtr lhs, StopPtr rhs) const
     return acos(sin(lc.x) * sin(rc.x) + cos(lc.x) * cos(rc.x) * cos(std::abs(lc.y - rc.y))) * EARTH_RADIUS;
 }
 
-double Bus::GetRealDistanceBetweenStops(StopPtr lhs, StopPtr rhs) const
+double Bus::GetRealDistanceBetweenStops(StopPtr lhs, StopPtr rhs)
 {
     if (auto distance_from_lhs_to_rhs = lhs->GetDistanceTo(rhs))
     {

@@ -37,6 +37,29 @@ void StopInfoResponse::AddToStream(std::ostream& os) const
     }
 }
 
+Json::Node RouteStops::ToJson() const
+{
+    using namespace std;
+    using namespace Json;
+    map<string, Node> nodes_map;
+    nodes_map["request_id"] = Node((int)request_id);
+    if (found)
+    {
+        vector<Node> nodes;
+        for (const auto& activity : items)
+        {
+            nodes.push_back(activity->ToJson());
+        }
+        nodes_map["items"] = Node(nodes);
+        nodes_map["total_time"] = total_time;
+    }
+    else
+    {
+        nodes_map["error_message"] = Node(string("not found"));
+    }
+    return Node(nodes_map);
+}
+
 //**************************************************************************************
 
 Json::Node BusInfoResponse::ToJson() const

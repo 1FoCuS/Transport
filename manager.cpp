@@ -7,10 +7,9 @@ void Manager::run(std::istream& in_stream, std::ostream& output)
     ReadRequestFromJson(document, "base_requests");
     RunRequests();
     ReadRequestFromJson(document, "routing_settings");
-    RunRequests();
-    ReadRequestFromJson(document, "stat_requests");
+    /*ReadRequestFromJson(document, "stat_requests");
     RunResponse();
-
+*/
     PrintClearResponsesJson(output);
 }
 
@@ -58,9 +57,7 @@ void Manager::ReadRequestFromJson(const Json::Document& doc, const std::string& 
         std::cerr << "unknown section" <<std::endl;
         return;
     }
-
     const auto request_mode = mode_settings.at(section);
-
     if (section == "routing_settings")
     {
         auto request_ptr = Request::Create(Request::TypeRequest::ADD_ROUTER_SETTINGS);
@@ -68,8 +65,12 @@ void Manager::ReadRequestFromJson(const Json::Document& doc, const std::string& 
         if (request_ptr && it.find(section)!=it.end())
         {
             request_ptr->Parse(it.at(section));
-            queue_requests.push(std::move(request_ptr));
+            //queue_requests.push(std::move(request_ptr));
+            const auto& request = static_cast<const ReadRequest&>(*request_ptr);
+            request.Process();
         }
+
+        Database::Instance().UpdateGraphAndRouter();
     }
     else
     {

@@ -28,6 +28,7 @@ struct Request
 
         GET_INFO_BUS,
         GET_INFO_STOP,
+        GET_ROUTE_STOPS
     };
 
     enum class Mode
@@ -109,6 +110,7 @@ private:
 
 struct AddRouteSetting : WriteRequest
 {
+public:
     AddRouteSetting() : WriteRequest(TypeRequest::ADD_ROUTER_SETTINGS) {}
 
     void Parse(std::string_view input) override final;
@@ -145,6 +147,19 @@ struct GetStopInfo : ReadRequest
 
 private:
     std::string stop_name;
+};
+
+struct GetRouteStops : ReadRequest
+{
+    GetRouteStops() : ReadRequest(TypeRequest::GET_ROUTE_STOPS) {}
+
+    virtual void Parse(std::string_view) override final {}
+    void Parse(const Json::Node&) override final;
+
+    virtual ResponsePtr Process() const override final;
+private:
+    std::string from;
+    std::string to;
 };
 
 // ************************* function for work with request ******************

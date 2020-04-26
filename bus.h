@@ -25,7 +25,9 @@ public:
     void UpdateStats();
     Stats GetStats() const { return stats; }
     std::size_t GetStopsCount() const { return route.size(); }
+    auto& GetStops() { return route; }
 
+    static double GetDistStops(StopPtr lhs, StopPtr rhs) { return GetRealDistanceBetweenStops(lhs, rhs); }
 private:
     const std::string bus_number;
     std::vector<StopPtr> route;
@@ -36,7 +38,7 @@ private:
     double GetRouteLength() const;
     double GetGeoRouteLength() const;
     double GetGeoDistanceBetweenStops(StopPtr lhs, StopPtr rhs) const;
-    double GetRealDistanceBetweenStops(StopPtr lhs, StopPtr rhs) const;
+    static double GetRealDistanceBetweenStops(StopPtr lhs, StopPtr rhs) ;
     double GetDiffrent(double, double) const;
 };
 

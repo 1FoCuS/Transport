@@ -64,7 +64,9 @@ std::optional<Request::TypeRequest> CheckTypeRequest(const Json::Node& node, Req
             {
                 return Request::TypeRequest::GET_INFO_BUS;
             }
-            else return  Request::TypeRequest::GET_INFO_STOP;
+            else
+                if (node.AsMap().at("type").AsString() == "Stop") return  Request::TypeRequest::GET_INFO_STOP;
+                else return Request::TypeRequest::GET_ROUTE_STOPS;
         }
     }
 
@@ -89,6 +91,9 @@ RequestPtr Request::Create(Request::TypeRequest type)
             return std::make_unique<GetBusInfo>();
         case RT::GET_INFO_STOP:
             return std::make_unique<GetStopInfo>();
+        case RT::GET_ROUTE_STOPS:
+            return std::make_unique<GetRouteStops>();
+
         default:
             return nullptr;
     }
@@ -220,7 +225,7 @@ void GetBusInfo::Parse(const Json::Node& node)
 }
 
 
- ResponsePtr GetBusInfo::Process() const
+ResponsePtr GetBusInfo::Process() const
 {
     return std::make_shared<BusInfoResponse>(request_id, bus_id, Database::Instance().GetBus(bus_id));
 }
@@ -237,10 +242,46 @@ void GetStopInfo::Parse(const Json::Node& node)
     request_id = settings.at("id").AsInt();
 }
 
- ResponsePtr GetStopInfo::Process() const
+ResponsePtr GetStopInfo::Process() const
 {
     return std::make_shared<StopInfoResponse>(request_id, stop_name, Database::Instance().GetStop(stop_name));
 }
+
+
+ void GetRouteStops::Parse(const Json::Node& node)
+{
+    const auto& settings = node.AsMap();
+    from = settings.at("from").AsString();
+    to = settings.at("to").AsString();
+    request_id = settings.at("id").AsInt();
+}
+
+ ResponsePtr GetRouteStops::Process() const
+ {
+    StopPtr from_stop = Database::Instance().GetStop(from);
+    StopPtr to_stop = Database::Instance().GetStop(to);
+    TransportRouterPtr router = Database::Instance().GetRouter();
+    TransportGraphPtr graph = Database::Instance().GetGraph();
+
+    const auto& route = router->BuildRoute(from_stop->GetIndex(), to_stop->GetIndex());
+    if (route)
+    {
+        const int n = route->edge_count;
+        std::vector<RouterActivityPtr> activities(2 * n);
+        for (int i = 0; i < n; ++i)
+        {
+            const auto edge_id = router->GetRouteEdge(route->id, i);
+            activities[2 * i] = Database::Instance().GetWaitActivityByEdge(edge_id);
+            activities[2 * i + 1] = Database::Instance().GetBusActivityByEdge(edge_id);
+        }
+        router->ReleaseRoute(route->id);
+        return std::make_shared<RouteStops>(true, request_id, route->weight, move(activities));
+    }
+    else
+    {
+        return std::make_shared<RouteStops>(false, request_id);
+    }
+ }
 
 //******************************* function for work with request*********************************************
 

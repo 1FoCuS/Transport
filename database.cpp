@@ -1,11 +1,14 @@
 #include "database.h"
 #include <iostream>
 
+
+
 void Database::AddStop(const std::string& name)
 {
     if (data_stops.find(name) == data_stops.end())
     {
         data_stops[name] = std::make_shared<Stop>(name);
+        data_stops[name]->SetIndex(stop_last_index++);
     }
 }
 
@@ -22,6 +25,8 @@ void Database::AddorUpdateStop(const Param_Stop& param_stop)
         it->second->SetNewPoint(param_stop.point.x,param_stop.point.y);
         it->second->AddDistances(param_stop.stop_dist);
     }
+    data_stops[param_stop.name]->SetIndex(stop_last_index);
+    ++stop_last_index;
 }
 
 void Database::AddBusLineRoute(const std::string& name_bus, const std::vector<std::string>& stops)
@@ -89,4 +94,32 @@ void Database::UpdateStats()
         route.second->UpdateStats();
     }
 
+}
+
+void Database::UpdateGraphAndRouter()
+{
+    using namespace std;
+    const size_t vertex_count = data_stops.size();
+    graph = make_shared<TransportGraph>(vertex_count);
+    const double wait_time = route_settings.bus_wait_time;
+    for (auto& [bus_id, bus] : data_buses)
+    {
+        const auto& stops = bus->GetStops();
+        const int n = stops.size();
+        for (int i = 0; i < n - 1; ++i)
+        {
+            double distance = 0;
+            for (int j = i + 1; j < n; ++j)
+            {
+                distance += Bus::GetDistStops(stops[j - 1], stops[j]);
+                const double bus_time = distance / route_settings.bus_velocity;
+                const size_t span_count = j - i;
+
+                const auto edge_id = graph->AddEdge({ stops[i]->GetIndex(), stops[j]->GetIndex(), wait_time + bus_time });
+                wait_activities_by_edge[edge_id] = make_shared<WaitActivity>(stops[i]->GetName(), wait_time);
+                bus_activities_by_edge[edge_id] = make_shared<BusActivity>(bus_id, bus_time, span_count);
+            }
+        }
+    }
+    router = make_shared<TransportRouter>(*graph);
 }

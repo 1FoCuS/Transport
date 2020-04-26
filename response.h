@@ -7,6 +7,7 @@
 #include <queue>
 #include "json.h"
 #include "bus.h"
+#include "routeractivity.h"
 
 class Response;
 using ResponsePtr = std::shared_ptr<Response>;
@@ -35,7 +36,6 @@ private:
 };
 
 
-// *************** new
 class StopInfoResponse : public Response
 {
 public:
@@ -46,6 +46,20 @@ public:
 private:
     std::string stop_name;
     StopPtr stop_ptr;
+};
+
+class RouteStops : public Response
+{
+public:
+    RouteStops(bool is_found, size_t rid, double tt = 0.0, const std::vector<RouterActivityPtr>& activities = {})
+        : Response(rid), found(is_found), total_time(tt), items(activities) {}
+
+    bool found;
+    double total_time = 0.0;
+    std::vector<RouterActivityPtr> items;
+
+    void AddToStream(std::ostream& = std::cout) const final {}
+    Json::Node ToJson() const override;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const ResponsePtr& response)
