@@ -83,6 +83,8 @@ RequestPtr Request::Create(Request::TypeRequest type)
             return std::make_unique<AddBusLineRoute>();
         case RT::ADD_BUS_RING:
             return std::make_unique<AddBusRingRoute>();
+        case RT::ADD_ROUTER_SETTINGS:
+            return std::make_unique<AddRouteSetting>();
         case RT::GET_INFO_BUS:
             return std::make_unique<GetBusInfo>();
         case RT::GET_INFO_STOP:
@@ -182,6 +184,29 @@ void AddBusRingRoute::Process() const
     Database::Instance().AddBusRingRoute(id, stops);
 }
 
+
+void AddRouteSetting::Parse(std::string_view)
+{
+   // not used
+}
+
+void AddRouteSetting::Parse(const Json::Node& node)
+{
+    const auto& settings = node.AsMap();
+    if (!settings.empty())
+    {
+        params.bus_wait_time = settings.at("bus_wait_time").AsInt();
+        params.bus_velocity = settings.at("bus_velocity").AsDouble();
+    }
+}
+
+void AddRouteSetting::Process() const
+{
+    Database::Instance().AddRouteSettings(params);
+}
+
+
+//*******************************************************************************************************
 void GetBusInfo::Parse(std::string_view input)
 {
     bus_id = input;

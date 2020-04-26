@@ -24,8 +24,10 @@ struct Request
         ADD_STOP,
         ADD_BUS_LINE,
         ADD_BUS_RING,
+        ADD_ROUTER_SETTINGS,
+
         GET_INFO_BUS,
-        GET_INFO_STOP
+        GET_INFO_STOP,
     };
 
     enum class Mode
@@ -105,6 +107,17 @@ private:
     std::vector<std::string> stops;
 };
 
+struct AddRouteSetting : WriteRequest
+{
+    AddRouteSetting() : WriteRequest(TypeRequest::ADD_ROUTER_SETTINGS) {}
+
+    void Parse(std::string_view input) override final;
+    void Parse(const Json::Node&) override final;
+
+    void Process() const override final;
+private:
+    Database::RouteParams params;
+};
 
 // ************************* 3-level read-request ****************************
 

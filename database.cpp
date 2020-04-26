@@ -64,6 +64,11 @@ void Database::AddBusRingRoute(const std::string& name_bus, const std::vector<st
     }
 }
 
+void Database::AddRouteSettings(RouteParams params)
+{
+    route_settings = std::move(params);
+}
+
 BusPtr Database::GetBus(const std::string& id) const
 {
     const auto it = data_buses.find(id);

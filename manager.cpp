@@ -3,18 +3,15 @@
 void Manager::run(std::istream& in_stream, std::ostream& output)
 {
     Json::Document document = Json::Load(in_stream);
-    ReadRequestFromJson(document, Request::Mode::WRITE);
-    RunRequests();
-    ReadRequestFromJson(document, Request::Mode::READ_ONLY);
-    RunResponse();
-    PrintClearResponsesJson(output);
-/*
-    ReadRequestFromStream(in_stream, Request::Mode::WRITE);
-    RunRequests();
 
-    ReadRequestFromStream(in_stream, Request::Mode::READ_ONLY);
+    ReadRequestFromJson(document, "base_requests");
+    RunRequests();
+    ReadRequestFromJson(document, "routing_settings");
+    RunRequests();
+    ReadRequestFromJson(document, "stat_requests");
     RunResponse();
-*/
+
+    PrintClearResponsesJson(output);
 }
 
 void Manager::PrintClearResponses(std::ostream& stream)
@@ -53,19 +50,41 @@ void Manager::ReadRequestFromStream(std::istream& in_stream, Request::Mode mode)
     }
 }
 
-void Manager::ReadRequestFromJson(const Json::Document& doc, Request::Mode mode)
+void Manager::ReadRequestFromJson(const Json::Document& doc, const std::string& section)
 {
     const Json::Node& root = doc.GetRoot();
-    const std::string request_type = (mode == Request::Mode::WRITE) ? "base_requests" : "stat_requests";
-    const auto& json_requests = root.AsMap().at(request_type).AsArray();
-
-    for(const auto& json_request : json_requests)
+    if (mode_settings.find(section) == mode_settings.end())
     {
-        if (auto request = ParseRequestJson(json_request, mode) )
+        std::cerr << "unknown section" <<std::endl;
+        return;
+    }
+
+    const auto request_mode = mode_settings.at(section);
+
+    if (section == "routing_settings")
+    {
+        auto request_ptr = Request::Create(Request::TypeRequest::ADD_ROUTER_SETTINGS);
+        const auto& it = root.AsMap();
+        if (request_ptr && it.find(section)!=it.end())
         {
-            queue_requests.push(std::move(request));
+            request_ptr->Parse(it.at(section));
+            queue_requests.push(std::move(request_ptr));
         }
     }
+    else
+    {
+        const auto& json_requests = root.AsMap().at(section).AsArray();
+        for(const auto& json_request : json_requests)
+        {
+            if (auto request = ParseRequestJson(json_request, request_mode) )
+            {
+                queue_requests.push(std::move(request));
+            }
+        }
+    }
+
+
+
 }
 
 void Manager::RunRequests()

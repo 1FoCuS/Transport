@@ -8,7 +8,7 @@ int main(int , char *[])
 
     try
     {
-        Manager::Instance().run(/*input/*, output*/);
+        Manager::Instance().run(input, output);
 
     } catch (std::exception& ex)
     {
